@@ -1,9 +1,12 @@
-require 'cache_page/site/amazon'
-require 'cache_page/site/taobao'
-require 'cache_page/site/amazon'
-module CachePage
+module CatchPage
   def self.get_page uri
-    klass = uri.split(".")[1].capitalize.constantize
-    klass.get_page_info
+    begin
+      klass = uri.split(".")[1].capitalize
+      merchants = CatchPage.const_get(klass)
+      merchants.get_page_info uri
+    rescue => e
+      Rails.logger.error("get page info error:#{e}")
+      {}
+    end
   end
 end
