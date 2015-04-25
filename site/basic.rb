@@ -1,35 +1,29 @@
 #encoding: utf-8
-require 'nokogiri'
+require 'mechanize'
 
-module CachePage
-  module Site
-    module Basic
-      PRICE_AREA_HTML_TAG_ID = ""
-      IMAGE_AREA_HTML_TAG_ID = ""
-      TITLE_AREA_HTML_TAG_ID = ""
-
-      def self.included(base)
-        base.extend(ClassMethods)
-      end
-
-      module ClassMethods
-        def html_doc url
-          Nokogiri::HTML(open(url))
-        end
-
-        def get_price
-          doc.css(PRICE_AREA_HTML_TAG_ID).each {|link|link.content}.join("")
-        end
-
-        def get_images
-          doc.css(IMAGE_AREA_HTML_TAG_ID).each {|link|link.content}
-        end
-
-        def get_title
-          doc.css(TITLE_AREA_HTML_TAG_ID).each {|link|link.content}.join("")
-        end
-      end
-
+module CatchPage
+  module Basic
+    extend self
+    def html_doc url
+      mech = Mechanize.new
+      mech.get(url)
     end
-  end  
+
+    def price(tag,url=nil)
+      lab_price = @doc.root.css(tag).first.content.gsub(",","")
+      lab_price.gsub("￥","")
+    end
+
+    def images(tag)
+      yield(@doc.root.css(tag))
+    end
+
+    def title tag
+      @doc.root.css(tag).first.content.strip
+    end
+
+    def get_large_img img_url,tag
+      img_url.gsub(tag,".")
+    end
+  end
 end
